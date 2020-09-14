@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>websocket</title>
+  </head>
+  <body>
+    <ul class="box">
+      <li>1</li>
+      <li>2</li>
+    </ul>
+    <script>
+      const ws = new WebSocket("ws://127.0.0.1:8886");
+      let str =
+        "我要发送超级无敌长的信息段你是不是害怕了呢哈哈哈哈但是让我没想到的是这样都没有达到最长长度所以我要继续编造莫名其妙的内容填充";
+      for (let i = 0; i < 10; i++) {
+        str += str;
+      }
+      // console.log(str);
+      setTimeout(() => {
+        ws.send("大白你好");
+        // ws.send(str);
+        // ws.send(new Blob(["hello"], { type: "text/plain" }));
+      }, 1000);
+      ws.onmessage = (event) => console.log(`收到消息：${event.data}`);
+      ws.onopen = (event) => console.log("websocket已打开");
+      ws.onclose = (event) => console.log("websocket已关闭");
+      // setTimeout(() => ws.close(), 5000);
+    </script>
+  </body>
+</html>
