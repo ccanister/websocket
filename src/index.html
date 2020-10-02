@@ -10,7 +10,7 @@
       <li>2</li>
     </ul>
     <script>
-      const ws = new WebSocket("ws://127.0.0.1:8886");
+      const ws = new WebSocket("ws://172.16.155.26:8886");
       let str =
         "我要发送超级无敌长的信息段你是不是害怕了呢哈哈哈哈但是让我没想到的是这样都没有达到最长长度所以我要继续编造莫名其妙的内容填充";
       for (let i = 0; i < 10; i++) {
@@ -22,9 +22,18 @@
         // ws.send(str);
         // ws.send(new Blob(["hello"], { type: "text/plain" }));
       }, 1000);
-      ws.onmessage = (event) => console.log(`收到消息：${event.data}`);
+      setTimeout(() => {
+        ws.send("收的到吗");
+      }, 60000);
+      ws.onmessage = (event) => {
+        console.log(`收到消息：${event.data}`);
+        document.body.appendChild(document.createTextNode(event.data));
+      };
       ws.onopen = (event) => console.log("websocket已打开");
-      ws.onclose = (event) => console.log("websocket已关闭");
+      ws.onclose = (event) => {
+        console.log("websocket已关闭");
+        console.log(event)
+      };
       // setTimeout(() => ws.close(), 5000);
     </script>
   </body>

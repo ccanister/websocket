@@ -12,10 +12,10 @@ function generateAcceptValue(secWsKey) {
 
 class Msg {
   constructor(buffer) {
-    this.msg = "";
     this.loadData = 0;
     this.buffers = [];
     this.parse(buffer);
+    this.finished = this.isFinish(buffer);
   }
 
   parse(buffer) {
@@ -38,7 +38,7 @@ class Msg {
   }
 
   isFinish(buffer) {
-    this.isFinish = +buffer.readUInt8(0).toString(2).slice(1) === 1;
+    return Boolean((buffer.readUInt8(0) >>> 7) & 0x01);
   }
 
   readMaskData(buffer, offset, length) {
@@ -91,7 +91,7 @@ class Msg {
 
 function decode(datas) {
   const total = datas.reduce((total, cur) => total + cur.length, 0);
-  const segs = Math.ceil(total / seg_length);
+  const segs = Math.ceil(total / seg_length); // 分片长度
   let seg = 0,
     segDataIdx = 0, // 指向当前data的索引
     dataIdx = 0,
@@ -103,7 +103,7 @@ function decode(datas) {
     result.push(arr);
     seg++;
     for (let arrIdx = 0; arrIdx < length; arrIdx++) {
-      if (segDataIdx === data.length) {
+      if (segDataIdx === data.length) { // 当前data读取完毕
         segDataIdx = 0;
         data = datas[++dataIdx];
       }
@@ -148,14 +148,20 @@ function parseMessage(buffer) {
   }
   const op = buffer.readUInt8(0) & 0x0f;
   console.log(`op: ${op}`);
+  let msg;
   switch (op) {
     case OPCODES.TEXT:
-      msgs.push(new Msg(buffer));
+      msg = new Msg(buffer);
+      if (msg.finished) {
+        console.log(`收到信息：${decode([msg.maskOp()])}`);
+      } else {
+        msgs.push(msg);
+      }
       break;
     case OPCODES.CONTINUE:
-      const msg = new Msg(buffer);
+      msg = new Msg(buffer);
       msgs.push(msg);
-      if (msg.isFinish) {
+      if (msg.finished) {
         const datas = msgs.map((m) => m.maskOp());
         console.log(`收到信息：${decode(datas)}`);
         msgs = [];

@@ -30,9 +30,9 @@ server.on("upgrade", function (req, socket) {
 
   setTimeout(() => {
     socket.write(send("我是小白"));
-  }, 3000);
+  }, 10000);
   setTimeout(() => {
-    socket.write(close());
+    // socket.write(close());
   }, 5000);
   // 读取客户端提供的Sec-WebSocket-Key
   const secWsKey = req.headers["sec-websocket-key"];
